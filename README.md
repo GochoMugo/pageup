@@ -3,6 +3,9 @@
 
 > Do Check If My Page Is UP
 
+[![Version](https://img.shields.io/npm/v/pageup.svg)](https://www.npmjs.com/package/pageup) [![Build Status](https://travis-ci.org/GochoMugo/pageup.svg?branch=master)](https://travis-ci.org/GochoMugo/pageup) [![Dependency Status](https://gemnasium.com/GochoMugo/pageup.svg)](https://gemnasium.com/GochoMugo/pageup)
+
+
 An **easy** way to **test** if your page is available in Node.js, without tying you to any testing framework out there.
 
 
