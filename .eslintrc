@@ -1,0 +1,11 @@
+{
+    "env": {
+        "node": true
+    },
+    "rules": {
+        "new-cap": false,
+        "no-shadow": false,
+        "no-underscore-dangle": false,
+        "no-use-before-define": "nofunc"
+    }
+}

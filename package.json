@@ -1,0 +1,42 @@
+{
+  "name": "pageup",
+  "version": "0.0.0",
+  "description": "Do Check If My Page Is UP",
+  "main": "index.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GochoMugo/pageup.git"
+  },
+  "keywords": [
+    "page",
+    "up",
+    "status",
+    "code",
+    "http",
+    "request"
+  ],
+  "author": "GochoMugo <mugo@forfuture.co.ke> (https://gochomugo.github.io/)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/GochoMugo/pageup/issues"
+  },
+  "homepage": "https://github.com/GochoMugo/pageup#readme",
+  "depedencies": {
+    "debug": "^2.2.0",
+    "lodash": "^3.9.3",
+    "read-glob": "^2.1.0",
+    "superagent": "^1.2.0"
+  },
+  "devDependencies": {
+    "express": "^4.1.2.4",
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-eslint": "^14.0.0",
+    "grunt-tape": "^0.0.2",
+    "load-grunt-tasks": "^3.2.0",
+    "tape": "^4.0.0"
+  }
+}

@@ -1,0 +1,9 @@
+# ignore tests and related files
+test.*.js
+.eslintrc
+Gruntfile.js
+sample.description.json
+
+# ignore CI config files
+.travis.yml
+
