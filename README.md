@@ -54,15 +54,19 @@ Configures the test harness.
 
 * `config` (Object): test configurations. Properties include:
     * `files` (Array): array of absolute filepaths
-    * `file` (String): an absolute filepath.
+    * `file` (String): an absolute filepath
+    * `timeout` (Integer): number of milliseconds before a request times out. Default is `null` i.e. a timeout is **not** applied to the requests
 
 If both `config.files` and `config.file` are provided, `config.file` will be appended to `config.files` (if **not** found in `config.files`). See [`test description`](#description) for how the file should be formatted.
+
+You can also use **[globs](https://www.npmjs.com/package/glob)**. These will be used to find target files. Therefore you don't need to write down all file paths explicitly.
 
 Example:
 
 ```js
 pageupTest.configure({
-    files: ["server.one.js", "server.two.js"]
+    files: ["server.*.js"],
+    timeout: 5000
 });
 ```
 
@@ -73,12 +77,13 @@ Runs your tests.
 
 * `tester` (Function): Test the status code
     * **signature**: `tester(err, actual, expected, url)`
-    * `err` (Error): truthy, if an error occurring making request such as network failures. **Note**: `404`s and other status codes usually regarded as errors are not passed as `err`. **Status codes do not signify anything specific to pageup.**
+    * `err` (Error): truthy, if an error occurring making request such as network failures and request timeouts. **Note**: `404`s and other status codes usually regarded as errors are not passed as `err`. **Status codes do not signify anything specific to pageup.**
     * `actual` (Integer): response status code e.g. `200`
     * `expected` (Integer): expected status code e.g. `404`
     * `url` (String): url the current request was sent to. e.g. `"http://localhost:8080/endpoint"`
 * `done` (Function): called when all requests are done
-    * **signature**: `done()`
+    * **signature**: `done(err)`
+    * `err` (Error): truthy, if an error occurs in one of the processing stages prior to testing. An error may occur when reading the target files or converting the file contents to JSON.
 
 Example:
 
@@ -87,8 +92,9 @@ var assert = require("assert");
 
 pageupTest.run(function(err, actual, expected, url) {
     assert.ok(!!err, "error making request to " + url);
-    assert.equal(actual, expected, "failed test!");
-}, function() {
+    assert.equal(actual, expected, "status code mismatch: " + url);
+}, function(err) {
+    assert.ok(!!err, "error occurred prior sending requests");
     console.log("we are done");
 });
 ```

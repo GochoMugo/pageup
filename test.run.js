@@ -44,7 +44,8 @@ app.use("/", function(req, res) {
 
 // create a new test
 var pageupTest = new PageupTest({
-  file: "sample.description.json"
+  file: "sample.*.json",
+  timeout: 5000
 });
 
 
@@ -61,4 +62,3 @@ server.listen(3000, function() {
     server.close();
   });
 });
-

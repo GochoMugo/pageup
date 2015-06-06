@@ -34,6 +34,7 @@ function uniquePaths(pathsArray) {
   return pathsArray;
 }
 
+
 /**
  * Take an array of globs and combine them to one glob that can match
  * any of the targets of the initial globs
@@ -100,15 +101,22 @@ function map(contents) {
  * Build request objects
  *
  * @param <mapping> - {Object} mapping from `map()`
+ * @param [options] - {Object} options to apply to requests
  * @return {Array} array of requests e.g.
  * [{ request: [Object], url: "http://localhost:8080/try", status: 200 }]
  */
-function buildRequests(mapping) {
+function buildRequests(mapping, options) {
   var requests = [];
   for (var url in mapping) {
     var rawRequest = _.cloneDeep(request);
+    rawRequest = rawRequest.get(url);
+    if (options) {
+        if (options.timeout) {
+            rawRequest = rawRequest.timeout(options.timeout);
+        }
+    }
     requests.push({
-      request: rawRequest.get(url),
+      request: rawRequest,
       url: url,
       status: mapping[url]
     });
@@ -148,6 +156,7 @@ exports = module.exports = (function() {
   function PageupTest(options) {
     debug("creating new instance of Pageup Test");
     this._files = [];
+    this._timeout = null;
     if (options) {
       this.configure(options);
     }
@@ -168,6 +177,7 @@ exports = module.exports = (function() {
     if (options.files) {
       this._files.push(options.files);
     }
+    this._timeout = options.timeout || this._timeout;
     return this;
   };
 
@@ -178,6 +188,7 @@ exports = module.exports = (function() {
    * @param <done> - {Function} done(err)
    */
   PageupTest.prototype.run = function(tester, done) {
+    var _this = this;
     debug("obtaining unique file paths");
     var files = uniquePaths(this._files);
     debug("creating a general glob for matching all target files");
@@ -198,7 +209,8 @@ exports = module.exports = (function() {
       debug("creating a single url-status mapping");
       var mapping = map(contents);
       debug("building requests");
-      var requests = buildRequests(mapping);
+      var buildOptions = { timeout: _this._timeout };
+      var requests = buildRequests(mapping, buildOptions);
       debug("sending off requests. REAL TESTING begins... " +
         "See you on the other side");
       return sendRequests(requests, tester, done);
@@ -207,4 +219,3 @@ exports = module.exports = (function() {
 
   return PageupTest;
 })();
-
