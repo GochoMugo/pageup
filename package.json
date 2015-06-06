@@ -1,6 +1,6 @@
 {
   "name": "pageup",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Do Check If My Page Is UP",
   "main": "index.js",
   "scripts": {
