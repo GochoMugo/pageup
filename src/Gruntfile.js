@@ -6,24 +6,23 @@
  */
 
 
-"use strict";
+import load from "load-grunt-tasks";
 
 
-exports = module.exports = function(grunt) {
-  require("load-grunt-tasks")(grunt);
+export default function(grunt) {
+  load(grunt);
 
   grunt.initConfig({
     eslint: {
-      all: ["*.js"]
+      all: ["src/**/*.js"],
     },
     tape: {
       options: {
-        pretty: true
+        pretty: true,
       },
-      all: ["test.*.js"]
-    }
+      all: ["test.*.js"],
+    },
   });
 
   grunt.registerTask("test", ["eslint", "tape"]);
-};
-
+}

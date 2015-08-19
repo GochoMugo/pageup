@@ -7,25 +7,26 @@
  */
 
 
-"use strict";
-
-
 // built-in modules
-var url = require("url");
+import url from "url";
 
 
 // npm-installed modules
-var _ = require("lodash");
-var debug = require("debug")("pageup");
-var readGlob = require("read-glob");
-var request = require("superagent");
+import _ from "lodash";
+import Debug from "debug";
+import readGlob from "read-glob";
+import request from "superagent";
+
+
+// add debug
+const debug = Debug("pageup");
 
 
 /**
  * Take an array of file paths, flattens it if nested and remove
  * duplicates
  *
- * @param <pathsArray> - {Array} array of file paths
+ * @param  {Array} pathsArray - array of file paths
  * @return {Array}
  */
 function uniquePaths(pathsArray) {
@@ -39,11 +40,11 @@ function uniquePaths(pathsArray) {
  * Take an array of globs and combine them to one glob that can match
  * any of the targets of the initial globs
  *
- * @param <globsArray> - {Array} array of globs
+ * @param  {String[]} globsArray - array of globs
  * @return {String} final glob
  */
 function joinGlobs(globsArray) {
-  var glob = globsArray.join("|");
+  let glob = globsArray.join("|");
   glob = "*(" + glob + ")";
   return glob;
 }
@@ -54,11 +55,12 @@ function joinGlobs(globsArray) {
  * Note: throws error (if a string can not be parsed to JSON)
  * Note: Fails fast (if string can NOT parsed to JSON)
  *
- * @param <array> - {Array} array of strings
+ * @param  {String[]} array - array of strings
+ * @return {String[]} array of valid JSON
  */
 function stringArrayToJsonArray(array) {
-  var jsonArray = [ ];
-  for (var index = 0, tmp; index < array.length; index++) {
+  let jsonArray = [ ];
+  for (let index = 0, tmp; index < array.length; index++) {
     tmp = JSON.parse(array[index]);
     jsonArray.push(tmp);
   }
@@ -69,26 +71,26 @@ function stringArrayToJsonArray(array) {
 /**
  * Map absolute urls to statuses
  *
- * @param <contents> - {Array} array of test files
+ * @param  {Array} contents - array of test files
  * @return {Object} mapping of url: status
  */
 function map(contents) {
-  var mapping = { };
+  let mapping = { };
   contents.forEach(function(content) {
-    var baseurl = content.baseurl;
-    var endpoints = content.endpoints;
+    const baseurl = content.baseurl;
+    const endpoints = content.endpoints;
     if (endpoints) {
-      for (var endpoint in endpoints) {
-        var absUrl = url.resolve(baseurl, endpoint);
-        var statusCode = endpoints[endpoint];
+      for (let endpoint in endpoints) {
+        let absUrl = url.resolve(baseurl, endpoint);
+        let statusCode = endpoints[endpoint];
         mapping[absUrl] = statusCode;
       }
     }
     // for convenience
-    var ok = content.ok;
+    const ok = content.ok;
     if (ok) {
       ok.forEach(function(endpoint) {
-        var absUrl = url.resolve(baseurl, endpoint);
+        let absUrl = url.resolve(baseurl, endpoint);
         mapping[absUrl] = 200;
       });
     }
@@ -100,16 +102,16 @@ function map(contents) {
 /**
  * Build request objects
  *
- * @param <mapping> - {Object} mapping from `map()`
- * @param [options] - {Object} options to apply to requests
+ * @param  {Object} mapping - mapping from `map()`
+ * @param  {Object} [options] - options to apply to requests
  * @return {Array} array of requests e.g.
- * [{ request: [Object], url: "http://localhost:8080/try", status: 200 }]
+ *  [{ request: [Object], url: "http://localhost:8080/try", status: 200 }]
  */
 function buildRequests(mapping, options) {
-  var requests = [];
-  for (var url in mapping) {
-    var rawRequest = _.cloneDeep(request);
-    rawRequest = rawRequest.get(url);
+  var requests = [ ];
+  for (let endpoint in mapping) {
+    let rawRequest = _.cloneDeep(request);
+    rawRequest = rawRequest.get(endpoint);
     if (options) {
         if (options.timeout) {
             rawRequest = rawRequest.timeout(options.timeout);
@@ -117,8 +119,8 @@ function buildRequests(mapping, options) {
     }
     requests.push({
       request: rawRequest,
-      url: url,
-      status: mapping[url]
+      status: mapping[endpoint],
+      url: endpoint,
     });
   }
   return requests;
@@ -128,9 +130,9 @@ function buildRequests(mapping, options) {
 /**
  * Send requests and run tester on the reponse status codes
  *
- * @param <requests> - {Object} requests from `buildRequests`
- * @param <tester> - {Function} tester(err, actual, expected, url)
- * @param <done> - {Function} done(err)
+ * @param  {Object} requests - requests from `buildRequests`
+ * @param  {Function} tester - tester(err, actual, expected, url)
+ * @param  {Function} done - done(err)
  */
 function sendRequests(requests, tester, done) {
   var undone = requests.length;
@@ -146,16 +148,16 @@ function sendRequests(requests, tester, done) {
 }
 
 
-exports = module.exports = (function() {
+export default class PageupTest {
   /**
    * Constructor.
    *
-   * @param [options] - {Object} passed to .configure as is
+   * @param  {Object} [options] - passed to .configure as is
    * @return {PageupTest}
    */
-  function PageupTest(options) {
+  constructor(options) {
     debug("creating new instance of Pageup Test");
-    this._files = [];
+    this._files = [ ];
     this._timeout = null;
     if (options) {
       this.configure(options);
@@ -166,10 +168,10 @@ exports = module.exports = (function() {
   /**
    * Configure the instance
    *
-   * @param <options> - {Object} configurations
+   * @param  {Object} options - configurations
    * @return {this}
    */
-  PageupTest.prototype.configure = function(options) {
+  configure(options) {
     debug("configuring the test instance");
     if (options.file) {
       this._files.push(options.file);
@@ -179,43 +181,47 @@ exports = module.exports = (function() {
     }
     this._timeout = options.timeout || this._timeout;
     return this;
-  };
+  }
 
   /**
    * Run the PageupTest
    *
-   * @param <tester> - {Function} tester function
-   * @param <done> - {Function} done(err)
+   * @param  {Function} tester - tester function (err, actualStatus, expectedStatus, url)
+   * @param  {Function} done - done(err)
    */
-  PageupTest.prototype.run = function(tester, done) {
+  run(tester, done) {
     var _this = this;
+
     debug("obtaining unique file paths");
     var files = uniquePaths(this._files);
+
     debug("creating a general glob for matching all target files");
     var glob = joinGlobs(files);
+
     debug("reading any target files found");
-    return readGlob(glob, "utf-8", function(err, contents) {
-      if (err) {
-        debug("errored reading files: %s", err);
-        return done(err);
+    return readGlob(glob, "utf-8", function(readErr, contents) {
+      if (readErr) {
+        debug(`errored reading files: ${readErr}`);
+        return done(readErr);
       }
+
       debug("converting all file contents to JSON");
       try {
         contents = stringArrayToJsonArray(contents);
-      } catch (err) {
-        debug("errored converting to json: %s", err);
-        return done(err);
+      } catch (jsonErr) {
+        debug(`errored converting to json: ${jsonErr}`);
+        return done(jsonErr);
       }
+
       debug("creating a single url-status mapping");
       var mapping = map(contents);
+
       debug("building requests");
       var buildOptions = { timeout: _this._timeout };
       var requests = buildRequests(mapping, buildOptions);
-      debug("sending off requests. REAL TESTING begins... " +
-        "See you on the other side");
+
+      debug("sending off requests. REAL TESTING begins...\nSee you on the other side");
       return sendRequests(requests, tester, done);
     }); // return readGlob
-  };
-
-  return PageupTest;
-})();
+  }
+}

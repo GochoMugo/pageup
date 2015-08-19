@@ -1,9 +1,12 @@
-# ignore tests and related files
-test.*.js
+# raw/es6
+src/
+
+# tests
+test/
+
+# misc
+.editorconfig
 .eslintrc
-Gruntfile.js
-sample.description.json
-
-# ignore CI config files
 .travis.yml
-
+Gruntfile.js
+screenshot.gif

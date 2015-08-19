@@ -6,25 +6,22 @@
  */
 
 
-"use strict";
-
-
 // built-in modules
-var http = require("http");
+import http from "http";
 
 
 // npm-installed modules
-var express = require("express");
-var tapeTest = require("tape");
+import express from "express";
+import tapeTest from "tape";
 
 
 // own modules
-var PageupTest = require("./index");
+import PageupTest from "./index";
 
 
 // module variables
-var app = express();
-var server = http.Server(app);
+const app = express();
+const server = http.Server(app);
 
 
 // some simple routes
@@ -45,7 +42,7 @@ app.use("/", function(req, res) {
 // create a new test
 var pageupTest = new PageupTest({
   file: "sample.*.json",
-  timeout: 5000
+  timeout: 5000,
 });
 
 
