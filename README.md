@@ -168,6 +168,14 @@ You can omit the protocol from the url; `http` will be implied.
 ✔ (200) http://duckduckgo.com/
 ```
 
+You can specify more than one url.
+
+```bash
+⇒ pageup duckduckgo.com forfuture.co.ke
+✔ (200) http://forfuture.co.ke/
+✔ (200) http://duckduckgo.com/
+```
+
 
 <a name="debugging"></a>
 ## debugging:
