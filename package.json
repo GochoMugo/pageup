@@ -30,6 +30,7 @@
   "dependencies": {
     "debug": "^2.2.0",
     "lodash": "^3.9.3",
+    "log-symbols": "^1.0.2",
     "read-glob": "^2.1.0",
     "superagent": "^1.2.0"
   },

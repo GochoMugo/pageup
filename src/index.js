@@ -139,7 +139,7 @@ function sendRequests(requests, tester, done) {
   requests.forEach(function(req) {
     req.request.end(function(err, res) {
       err = (err && err.status) ? null : err;
-      tester(err, res.status, req.status, req.url);
+      tester(err, res ? res.status : null, req.status, req.url);
       if (--undone === 0) {
         return done();
       }
@@ -158,7 +158,7 @@ export default class PageupTest {
   constructor(options) {
     debug("creating new instance of Pageup Test");
     this._files = [ ];
-    this._description = null;
+    this._descriptions = [];
     this._timeout = null;
     if (options) {
       this.configure(options);
@@ -181,7 +181,10 @@ export default class PageupTest {
       this._files.push.apply(this._files, options.files);
     }
     if (options.description) {
-      this._description = options.description;
+      this._descriptions.push(options.description);
+    }
+    if (options.descriptions) {
+      this._descriptions.push.apply(this._descriptions, options.descriptions);
     }
     this._timeout = options.timeout || this._timeout;
     return this;
@@ -198,9 +201,9 @@ export default class PageupTest {
 
     let descriptions = [];
 
-    if (_this._description) {
+    if (_this._descriptions.length) {
       debug("adding description from configurations");
-      descriptions.push(_this._description);
+      descriptions.push.apply(descriptions, _this._descriptions);
     }
 
     if (!_this._files.length) {
