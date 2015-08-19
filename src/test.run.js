@@ -28,6 +28,9 @@ const server = http.Server(app);
 app.use("/200", function(req, res) {
   res.sendStatus(200);
 });
+app.use("/401", function(req, res) {
+  res.sendStatus(401);
+});
 app.use("/404", function(req, res) {
   res.sendStatus(404);
 });
@@ -43,6 +46,15 @@ app.use("/", function(req, res) {
 var pageupTest = new PageupTest({
   file: "sample.*.json",
   timeout: 5000,
+  description: {
+    baseurl: "http://localhost:3000",
+    endpoints: {
+      "/401": 401,
+    },
+    ok: [
+      "/",
+    ],
+  },
 });
 
 

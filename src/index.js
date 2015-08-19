@@ -158,6 +158,7 @@ export default class PageupTest {
   constructor(options) {
     debug("creating new instance of Pageup Test");
     this._files = [ ];
+    this._description = null;
     this._timeout = null;
     if (options) {
       this.configure(options);
@@ -171,13 +172,16 @@ export default class PageupTest {
    * @param  {Object} options - configurations
    * @return {this}
    */
-  configure(options) {
+  configure(options={}) {
     debug("configuring the test instance");
     if (options.file) {
       this._files.push(options.file);
     }
     if (options.files) {
-      this._files.push(options.files);
+      this._files.push.apply(this._files, options.files);
+    }
+    if (options.description) {
+      this._description = options.description;
     }
     this._timeout = options.timeout || this._timeout;
     return this;
@@ -190,10 +194,22 @@ export default class PageupTest {
    * @param  {Function} done - done(err)
    */
   run(tester, done) {
-    var _this = this;
+    const _this = this;
+
+    let descriptions = [];
+
+    if (_this._description) {
+      debug("adding description from configurations");
+      descriptions.push(_this._description);
+    }
+
+    if (!_this._files.length) {
+      // invoke run if no description file is available
+      return run();
+    }
 
     debug("obtaining unique file paths");
-    var files = uniquePaths(this._files);
+    var files = uniquePaths(_this._files);
 
     debug("creating a general glob for matching all target files");
     var glob = joinGlobs(files);
@@ -213,15 +229,22 @@ export default class PageupTest {
         return done(jsonErr);
       }
 
+      debug("registering descriptions from files");
+      descriptions = descriptions.concat(contents);
+
+      return run();
+    }); // return readGlob
+
+    function run() {
       debug("creating a single url-status mapping");
-      var mapping = map(contents);
+      var mapping = map(descriptions);
 
       debug("building requests");
       var buildOptions = { timeout: _this._timeout };
       var requests = buildRequests(mapping, buildOptions);
 
-      debug("sending off requests. REAL TESTING begins...\nSee you on the other side");
+      debug("sending off requests. REAL TESTING begins... See you on the other side");
       return sendRequests(requests, tester, done);
-    }); // return readGlob
+    }
   }
 }
