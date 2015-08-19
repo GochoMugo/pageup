@@ -13,6 +13,7 @@ An **easy** way to **test** if your page is available in Node.js, without tying 
 
 1. [installation](#install)
 1. [API](#api)
+1. [CLI](#cli)
 1. [debugging](#debugging)
 1. [license](#license)
 
@@ -53,11 +54,15 @@ var pageupTest = new PageupTest({
 Configures the test harness.
 
 * `config` (Object): test configurations. Properties include:
-    * `files` (Array): array of absolute filepaths
+    * `files` (String[]): array of absolute filepaths
     * `file` (String): an absolute filepath
-    * `timeout` (Integer): number of milliseconds before a request times out. Default is `null` i.e. a timeout is **not** applied to the requests
+    * `description` (Object): a single [test description](#description)
+    * `descriptions` (Object[]): array of [test descriptions](#description)
+    * `timeout` (Integer): number of milliseconds before a request times out. Default is `null` i.e. a timeout is **not** applied to the requests.
 
-If both `config.files` and `config.file` are provided, `config.file` will be appended to `config.files` (if **not** found in `config.files`). See [`test description`](#description) for how the file should be formatted.
+If both `config.files` and `config.file` are provided, `config.file` will be appended to `config.files` (if **not** found in `config.files`). Similarly for `config.description` and `config.descriptions`.
+
+See [`test description`](#description) for how the file should be formatted.
 
 You can also use **[globs](https://www.npmjs.com/package/glob)**. These will be used to find target files. Therefore you don't need to write down all file paths explicitly.
 
@@ -66,7 +71,15 @@ Example:
 ```js
 pageupTest.configure({
     files: ["server.*.js"],
-    timeout: 5000
+    timeout: 5000,
+    descriptions: [
+      {
+        baseurl: "http://forfuture.co.ke/",
+        endpoints: {
+          "/": 200
+        }
+      }
+    ]
 });
 ```
 
@@ -129,6 +142,33 @@ Sample description file:
 ```
 
 
+<a name="cli"></a>
+## CLI:
+
+The module also provides a command-line interface. Passed arguments are in the format `<status-code>=<url>`. Ensure `url` is a valid url.
+
+For example,
+
+```bash
+⇒ pageup 200=https://duckduckgo.com
+✔ (200) https://duckduckgo.com/
+```
+
+You can also ignore the `status-code`; `200` will be implied.
+
+```bash
+⇒ pageup https://duckduckgo.com
+✔ (200) https://duckduckgo.com/
+```
+
+You can omit the protocol from the url; `http` will be implied.
+
+```bash
+⇒ pageup duckduckgo.com
+✔ (200) http://duckduckgo.com/
+```
+
+
 <a name="debugging"></a>
 ## debugging:
 
@@ -147,4 +187,3 @@ For example, in *nix:
 **The MIT License (MIT)**
 
 Copyright (c) 2015 GochoMugo <mugo@forfuture.co.ke>
-

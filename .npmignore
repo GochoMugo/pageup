@@ -2,11 +2,11 @@
 src/
 
 # tests
-test/
+test.*.js
 
 # misc
 .editorconfig
 .eslintrc
+.gitignore
 .travis.yml
 Gruntfile.js
-screenshot.gif

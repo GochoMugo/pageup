@@ -22,13 +22,17 @@ let test;
 debug("generating descriptions from command-line arguments");
 for (let index = 2; index < process.argv.length; index++) {
   let arg = process.argv[index];
-  let hasStatus = arg.match(/^(\d{3})/);
+  let hasStatus = arg.match(/^(\d{3})=/);
   let status = hasStatus ? hasStatus[1] : 200;
-  let baseurl = hasStatus ? arg.match(/:(.+)$/)[1] : arg;
+  let baseurl = hasStatus ? arg.match(/=(.+)$/)[1] : arg;
 
   if (!baseurl) {
     out.warn(`ignoring '${arg}' as its format is invalid`);
     continue;
+  }
+
+  if (!/\w+:\/\//.test(baseurl)) {
+    baseurl = "http://" + baseurl;
   }
 
   descriptions.push({
